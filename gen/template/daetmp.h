@@ -140,3 +140,4 @@ void dae_xml_endelement(
 #endif // __cplusplus
 
 #endif // DAE_DAE_H_
+

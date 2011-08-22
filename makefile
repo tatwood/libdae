@@ -32,4 +32,5 @@ obj/%.d.o : %.c
 all: $(LIB) $(LIBD)
 
 clean:
-	rm -f lib/libdae.a lib/libdaed.a obj/*
+	rm -rf lib/libdae.a lib/libdaed.a obj
+

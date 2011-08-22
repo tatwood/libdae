@@ -7,7 +7,6 @@
 #include <dae/dae.h>
 #include <assert.h>
 #include <ctype.h>
-#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -815,11 +814,11 @@ dae_typebase* dae_find_in_list(
         if(curattr != NULL)
         {
             const char* itemval = *((const char**) (buf+curattr->offset));
-            if(!strcmp(itemval, attval))
+            if(itemval != NULL && !strcmp(itemval, attval))
             {
                 result = (dae_typebase*) buf;
                 break;
-            } 
+            }
         }
         buf += listdef->size;
     }
@@ -1352,7 +1351,10 @@ void dae_xml_endelement(
                     list->size = n;
                 }
                 break;
-            //TODO: case dae_DATA_HEX:
+            case dae_DATA_HEX:
+                // TODO:
+                assert(0);
+                break;
             case dae_DATA_STRING:
                 {
                     size_t n = dae_count_stringdata(cd);

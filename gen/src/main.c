@@ -1,3 +1,9 @@
+/**
+ * @brief     dae code gen_eration function main and schema definitions
+ * @author    Thomas Atwood (tatwood.net)
+ * @date      2011
+ * @copyright unlicense / public domain
+ ****************************************************************************/
 #if !defined(NDEBUG) && defined(_MSC_FULL_VER)
 #define _CRTDBG_MAP_ALLOC
 #include <crtdbg.h>
@@ -21,7 +27,7 @@ extern void gen_writeheader(
     FILE* fp);
 
 //****************************************************************************
-static void constructschema(
+static void createschema(
     gen_schema* schema)
 {
     gen_typeid type;
@@ -108,19 +114,6 @@ static void constructschema(
     gen_add_attr(schema, type, "name", NULL, gen_DATA_STRING);
     gen_add_attr(schema, type, "meter", NULL, gen_DATA_FLOAT);
 
-    // blinn
-    type = gen_add_complex(schema, "blinn");
-    gen_add_element(schema, type, "emission", NULL, "color_or_texture", 0, 1);
-    gen_add_element(schema, type, "ambient", NULL, "color_or_texture", 0, 1);
-    gen_add_element(schema, type, "diffuse", NULL, "color_or_texture", 0, 1);
-    gen_add_element(schema, type, "specular", NULL, "color_or_texture", 0, 1);
-    gen_add_element(schema, type, "shininess", NULL, "float_or_param", 0, 1);
-    gen_add_element(schema, type, "reflective", NULL, "color_or_texture", 0, 1);
-    gen_add_element(schema, type, "reflectivity", NULL, "float_or_param", 0, 1);
-    gen_add_element(schema, type, "transparent", NULL, "color_or_texture", 0, 1);
-    gen_add_element(schema, type, "transparency", NULL, "float_or_param", 0, 1);
-    gen_add_element(schema, type, "index_of_refraction", NULL, "float_or_param", 0, 1);
-
     // bool
     type = gen_add_complex(schema, "bool");
     gen_set_data(schema, type, gen_DATA_BOOL, 1, 1);
@@ -186,22 +179,6 @@ static void constructschema(
     gen_add_element(schema, type, "scene", NULL, NULL, 0, 1);
     gen_add_element(schema, type, "extra", NULL, NULL, 0, -1);
 
-    // color_or_texture
-    type = gen_add_complex(schema, "color_or_texture");
-    gen_add_attr(schema, type, "opaque", NULL, gen_DATA_STRING);
-    gen_add_element(schema, type, "color", NULL, "float4", 0, 1);
-    gen_add_element(schema, type, "param", NULL, "param_ref", 0, 1);
-    gen_add_element(schema, type, "texture", NULL, "fx_texture", 0, 1);
-
-    // constant
-    type = gen_add_complex(schema, "constant");
-    gen_add_element(schema, type, "emission", NULL, "color_or_texture", 0, 1);
-    gen_add_element(schema, type, "reflective", NULL, "color_or_texture", 0, 1);
-    gen_add_element(schema, type, "reflectivity", NULL, "float_or_param", 0, 1);
-    gen_add_element(schema, type, "transparent", NULL, "color_or_texture", 0, 1);
-    gen_add_element(schema, type, "transparency", NULL, "float_or_param", 0, 1);
-    gen_add_element(schema, type, "index_of_refraction", NULL, "float_or_param", 0, 1);
-
     // contributor
     type = gen_add_complex(schema, "contributor");
     gen_add_element(schema, type, "author", NULL, "string", 0, 1);
@@ -229,14 +206,6 @@ static void constructschema(
     // directional
     type = gen_add_complex(schema, "directional");
     gen_add_element(schema, type, "color", NULL, "targetable_float3", 1, 1);
-
-    // effect
-    type = gen_add_complex(schema, "effect");
-    gen_add_element(schema, type, "asset", NULL, NULL, 0, 1);
-    gen_add_element(schema, type, "annotate", NULL, NULL, 0, -1);
-    gen_add_element(schema, type, "newparam", NULL, NULL, 0, -1);
-    gen_add_element(schema, type, "profile_COMMON", NULL, NULL, 0, 1);
-    gen_add_element(schema, type, "extra", NULL, NULL, 0, -1);
 
     // evaluate_scene
     type = gen_add_complex(schema, "evaluate_scene");
@@ -304,40 +273,10 @@ static void constructschema(
     gen_add_attr(schema, type, "name", NULL, gen_DATA_STRING);
     gen_add_attr(schema, type, "sid", NULL, gen_DATA_STRING);
     gen_add_element(schema, type, "target", NULL, "float_or_param", 1, 1);
-    gen_add_element(schema, type, "technique_common", NULL, "formula_technique_common", 1, 1);
+    gen_add_element(schema, type, "technique_common", NULL, "technique_common_formula", 1, 1);
     gen_add_element(schema, type, "technique", NULL, NULL, 0, -1);
-    type = gen_add_complex(schema, "formula_technique_common");
+    type = gen_add_complex(schema, "technique_common_formula");
     gen_set_data(schema, type, gen_DATA_STRING, 0, 1);
-
-    // fx_sampler_common
-    type = gen_add_complex(schema, "fx_sampler_common");
-    gen_add_element(schema, type, "instance_image", NULL, NULL, 0, 1);
-    gen_add_element(schema, type, "wrap_s", NULL, "string", 0, 1);
-    gen_add_element(schema, type, "wrap_t", NULL, "string", 0, 1);
-    gen_add_element(schema, type, "wrap_p", NULL, "string", 0, 1);
-    gen_add_element(schema, type, "minfilter", NULL, "string", 0, 1);
-    gen_add_element(schema, type, "magfilter", NULL, "string", 0, 1);
-    gen_add_element(schema, type, "mipfilter", NULL, "string", 0, 1);
-    gen_add_element(schema, type, "border_color", NULL, "float4", 0, 1);
-    gen_add_element(schema, type, "mip_max_level", NULL, "uint", 0, 1);
-    gen_add_element(schema, type, "mip_min_level", NULL, "uint", 0, 1);
-    gen_add_element(schema, type, "mip_bias", NULL, "float", 0, 1);
-    gen_add_element(schema, type, "max_anisotropy", NULL, "uint", 0, 1);
-    gen_add_element(schema, type, "extra", NULL, NULL, 0, -1);
-
-    // fx_technique
-    type = gen_add_complex(schema, "fx_technique");
-    gen_add_element(schema, type, "asset", NULL, NULL, 0, 1);
-    gen_add_element(schema, type, "constant", NULL, NULL, 0, 1);
-    gen_add_element(schema, type, "lambert", NULL, NULL, 0, 1);
-    gen_add_element(schema, type, "phong", NULL, NULL, 0, 1);
-    gen_add_element(schema, type, "blinn", NULL, NULL, 0, 1);
-
-    // fx_texture
-    type = gen_add_complex(schema, "fx_texture");
-    gen_add_attr(schema, type, "texture", NULL, gen_DATA_STRING);
-    gen_add_attr(schema, type, "texcoord", NULL, gen_DATA_STRING);
-    gen_add_element(schema, type, "extra", NULL, NULL, 0, -1);
 
     // geographic_location
     type = gen_add_complex(schema, "geographic_location");
@@ -365,29 +304,6 @@ static void constructschema(
     gen_add_attr(schema, type, "id", NULL, gen_DATA_STRING);
     gen_add_attr(schema, type, "name", NULL, gen_DATA_STRING);
     gen_set_data(schema, type, gen_DATA_STRING, 0, -1);
-
-    // image
-    type = gen_add_complex(schema, "image");
-    gen_add_attr(schema, type, "id", NULL, gen_DATA_STRING);
-    gen_add_attr(schema, type, "sid", NULL, gen_DATA_STRING);
-    gen_add_attr(schema, type, "name", NULL, gen_DATA_STRING);
-    gen_add_element(schema, type, "asset", NULL, NULL, 0, 1);
-    gen_add_element(schema, type, "renderable", NULL, NULL, 0, 1);
-    gen_add_element(schema, type, "init_from", NULL, "image_init_from", 0, 1);
-    gen_add_element(schema, type, "create_2d", NULL, NULL, 0, 1);
-    gen_add_element(schema, type, "create_3d", NULL, NULL, 0, 1);
-    gen_add_element(schema, type, "create_cube", NULL, NULL, 0, 1);
-    gen_add_element(schema, type, "extra", NULL, NULL, 0, -1);
-    type = gen_add_complex(schema, "image_renderable");
-    gen_add_attr(schema, type, "share", NULL, gen_DATA_BOOL);
-    type = gen_add_complex(schema, "image_init_from");
-    gen_add_attr(schema, type, "mips_gen_erate", NULL, gen_DATA_BOOL);
-    gen_add_element(schema, type, "ref",  NULL,"string", 0, 1);
-    gen_add_element(schema, type, "hex",  NULL,"image_hex", 0, 1);
-    gen_set_data(schema, type, gen_DATA_STRING, 0, 1); // for fbxdae compatibility
-    type = gen_add_complex(schema, "image_hex");
-    gen_add_attr(schema, type, "format", NULL, gen_DATA_STRING);
-    gen_set_data(schema, type, gen_DATA_STRING, 0, 1);
 
     // imager
     type = gen_add_complex(schema, "imager");
@@ -427,15 +343,6 @@ static void constructschema(
     gen_add_attr(schema, type, "url", NULL, gen_DATA_STRING);
     gen_add_element(schema, type, "skeleton", NULL, NULL, 0, -1);
     gen_add_element(schema, type, "bind_material", NULL, NULL, 0, 1);
-    gen_add_element(schema, type, "extra", NULL, NULL, 0, -1);
-
-    // instance_effect
-    type = gen_add_complex(schema, "instance_effect");
-    gen_add_attr(schema, type, "sid", NULL, gen_DATA_STRING);
-    gen_add_attr(schema, type, "name", NULL, gen_DATA_STRING);
-    gen_add_attr(schema, type, "url", NULL, gen_DATA_STRING);
-    gen_add_element(schema, type, "technique_hint", NULL, NULL, 0, -1);
-    gen_add_element(schema, type, "setparam", NULL, NULL, 0, -1);
     gen_add_element(schema, type, "extra", NULL, NULL, 0, -1);
 
     // instance_formula
@@ -506,17 +413,6 @@ static void constructschema(
     gen_add_element(schema, type, "input",  NULL,"input_unshared", 2, -1);
     gen_add_element(schema, type, "extra", NULL, NULL, 0, -1);
 
-    // lambert
-    type = gen_add_complex(schema, "lambert");
-    gen_add_element(schema, type, "emission", NULL, "color_or_texture", 0, 1);
-    gen_add_element(schema, type, "ambient", NULL, "color_or_texture", 0, 1);
-    gen_add_element(schema, type, "diffuse", NULL, "color_or_texture", 0, 1);
-    gen_add_element(schema, type, "reflective", NULL, "color_or_texture", 0, 1);
-    gen_add_element(schema, type, "reflectivity", NULL, "float_or_param", 0, 1);
-    gen_add_element(schema, type, "transparent", NULL, "color_or_texture", 0, 1);
-    gen_add_element(schema, type, "transparency", NULL, "float_or_param", 0, 1);
-    gen_add_element(schema, type, "index_of_refraction", NULL, "float_or_param", 0, 1);
-
     // library_animation_clips
     type = gen_add_complex(schema, "library_animation_clips");
     gen_add_attr(schema, type, "id", NULL, gen_DATA_STRING);
@@ -549,14 +445,6 @@ static void constructschema(
     gen_add_element(schema, type, "controller", NULL, NULL, 1, -1);
     gen_add_element(schema, type, "extra", NULL, NULL, 0, -1);
 
-    // library_effects
-    type = gen_add_complex(schema, "library_effects");
-    gen_add_attr(schema, type, "id", NULL, gen_DATA_STRING);
-    gen_add_attr(schema, type, "name", NULL, gen_DATA_STRING);
-    gen_add_element(schema, type, "asset", NULL, NULL, 0, 1);
-    gen_add_element(schema, type, "effect", NULL, NULL, 1, -1);
-    gen_add_element(schema, type, "extra", NULL, NULL, 0, -1);
-
     // library_formulas
     type = gen_add_complex(schema, "library_formulas");
     gen_add_attr(schema, type, "id", NULL, gen_DATA_STRING);
@@ -573,28 +461,12 @@ static void constructschema(
     gen_add_element(schema, type, "geometry", NULL, NULL, 1, -1);
     gen_add_element(schema, type, "extra", NULL, NULL, 0, -1);
 
-    // library_images
-    type = gen_add_complex(schema, "library_images");
-    gen_add_attr(schema, type, "id", NULL, gen_DATA_STRING);
-    gen_add_attr(schema, type, "name", NULL, gen_DATA_STRING);
-    gen_add_element(schema, type, "asset", NULL, NULL, 0, 1);
-    gen_add_element(schema, type, "image", NULL, NULL, 1, -1);
-    gen_add_element(schema, type, "extra", NULL, NULL, 0, -1);
-
     // library_lights
     type = gen_add_complex(schema, "library_lights");
     gen_add_attr(schema, type, "id", NULL, gen_DATA_STRING);
     gen_add_attr(schema, type, "name", NULL, gen_DATA_STRING);
     gen_add_element(schema, type, "asset", NULL, NULL, 0, 1);
     gen_add_element(schema, type, "light", NULL, NULL, 1, -1);
-    gen_add_element(schema, type, "extra", NULL, NULL, 0, -1);
-
-    // library_materials
-    type = gen_add_complex(schema, "library_materials");
-    gen_add_attr(schema, type, "id", NULL, gen_DATA_STRING);
-    gen_add_attr(schema, type, "name", NULL, gen_DATA_STRING);
-    gen_add_element(schema, type, "asset", NULL, NULL, 0, 1);
-    gen_add_element(schema, type, "material", NULL, NULL, 1, -1);
     gen_add_element(schema, type, "extra", NULL, NULL, 0, -1);
 
     // library_nodes
@@ -618,11 +490,11 @@ static void constructschema(
     gen_add_attr(schema, type, "id", NULL, gen_DATA_STRING);
     gen_add_attr(schema, type, "name", NULL, gen_DATA_STRING);
     gen_add_element(schema, type, "asset", NULL, NULL, 0, 1);
-    gen_add_element(schema, type, "technique_common", NULL, "light_technique_common", 1, 1);
+    gen_add_element(schema, type, "technique_common", NULL, "technique_common_light", 1, 1);
     gen_add_element(schema, type, "technique", NULL, NULL, 0, -1);
     gen_add_element(schema, type, "extra", NULL, NULL, 0, -1);
-    // light_technique_common
-    type = gen_add_complex(schema, "light_technique_common");
+    // technique_common_light
+    type = gen_add_complex(schema, "technique_common_light");
     gen_add_element(schema, type, "ambient", NULL, NULL, 0, 1);
     gen_add_element(schema, type, "directional", NULL, NULL, 0, 1);
     gen_add_element(schema, type, "point", NULL, NULL, 0, 1);
@@ -663,14 +535,6 @@ static void constructschema(
     type = gen_add_complex(schema, "matrix");
     gen_add_attr(schema, type, "sid", NULL, gen_DATA_STRING);
     gen_set_data(schema, type, gen_DATA_FLOAT, 16, 16);
-
-    // material
-    type = gen_add_complex(schema, "material");
-    gen_add_attr(schema, type, "id", NULL, gen_DATA_STRING);
-    gen_add_attr(schema, type, "name", NULL, gen_DATA_STRING);
-    gen_add_element(schema, type, "asset", NULL, NULL, 0, -1);
-    gen_add_element(schema, type, "instance_effect", NULL, NULL, 1, 1);
-    gen_add_element(schema, type, "extra", NULL, NULL, 0, -1);
 
     // mesh
     type = gen_add_complex(schema, "mesh");
@@ -731,10 +595,10 @@ static void constructschema(
 
     // optics
     type = gen_add_complex(schema, "optics");
-    gen_add_element(schema, type, "technique_common", NULL, "optics_technique_common", 1, 1);
+    gen_add_element(schema, type, "technique_common", NULL, "technique_common_optics", 1, 1);
     gen_add_element(schema, type, "technique", NULL, NULL, 0, -1);
     gen_add_element(schema, type, "extra", NULL, NULL, 0, -1);
-    type = gen_add_complex(schema, "optics_technique_common");
+    type = gen_add_complex(schema, "technique_common_optics");
     gen_add_element(schema, type, "orthographic", NULL, NULL, 0, 1);
     gen_add_element(schema, type, "perspective", NULL, NULL, 0, 1);
 
@@ -772,19 +636,6 @@ static void constructschema(
     gen_add_element(schema, type, "p", NULL, "list_of_uints", 0, 1);
     gen_add_element(schema, type, "h", NULL, "list_of_uints", 0, 1);
 
-    // phong
-    type = gen_add_complex(schema, "phong");
-    gen_add_element(schema, type, "emission", NULL, "color_or_texture", 0, 1);
-    gen_add_element(schema, type, "ambient", NULL, "color_or_texture", 0, 1);
-    gen_add_element(schema, type, "diffuse", NULL, "float_or_param", 0, 1);
-    gen_add_element(schema, type, "specular", NULL, "color_or_texture", 0, 1);
-    gen_add_element(schema, type, "shininess", NULL, "color_or_texture", 0, 1);
-    gen_add_element(schema, type, "reflective", NULL, "color_or_texture", 0, 1);
-    gen_add_element(schema, type, "reflectivity", NULL, "float_or_param", 0, 1);
-    gen_add_element(schema, type, "transparent", NULL, "color_or_texture", 0, 1);
-    gen_add_element(schema, type, "transparency", NULL, "float_or_param", 0, 1);
-    gen_add_element(schema, type, "index_of_refraction", NULL, "float_or_param", 0, 1);
-
     // point
     type = gen_add_complex(schema, "point");
     gen_add_element(schema, type, "color", NULL, "targetable_float3", 1, 1);
@@ -810,13 +661,6 @@ static void constructschema(
     gen_add_element(schema, type, "input", NULL, "input_shared", 0, -1);
     gen_add_element(schema, type, "vcount", NULL, "list_of_uints", 0, 1);
     gen_add_element(schema, type, "p", NULL, "list_of_uints", 0, 1);
-    gen_add_element(schema, type, "extra", NULL, NULL, 0, -1);
-
-    // profile_COMMON
-    type = gen_add_complex(schema, "profile_COMMON");
-    gen_add_element(schema, type, "asset", NULL, NULL, 0, 1);
-    gen_add_element(schema, type, "newparam", NULL, NULL, 0, -1);
-    gen_add_element(schema, type, "technique", NULL, "fx_technique", 1, 1);
     gen_add_element(schema, type, "extra", NULL, NULL, 0, -1);
 
     // rotate
@@ -884,9 +728,9 @@ static void constructschema(
     gen_add_element(schema, type, "Name_array", NULL, NULL, 0, 1);
     gen_add_element(schema, type, "SIDREF_array", NULL, NULL, 0, 1);
     gen_add_element(schema, type, "token_array", NULL, NULL, 0, 1);
-    gen_add_element(schema, type, "technique_common", NULL, "source_technique_common", 0, 1);
+    gen_add_element(schema, type, "technique_common", NULL, "technique_common_source", 0, 1);
     gen_add_element(schema, type, "technique", NULL, NULL, 0, -1);
-    type = gen_add_complex(schema, "source_technique_common");
+    type = gen_add_complex(schema, "technique_common_source");
     gen_add_element(schema, type, "accessor", NULL, NULL, 1, 1);
 
     // spline
@@ -999,10 +843,196 @@ static void constructschema(
     gen_add_element(schema, type, "node", NULL, NULL, 1, -1);
     gen_add_element(schema, type, "evaluate_scene", NULL, NULL, 0, -1);
     gen_add_element(schema, type, "extra", NULL, NULL, 0, -1);
+
+#if 1 // FX
+
+    // bind_material
+    type = gen_add_complex(schema, "bind_material");
+    gen_add_element(schema, type, "param", NULL, NULL, 0, -1);
+    gen_add_element(schema, type, "technique_common", NULL, "technique_common_bind_material", 1, 1);
+    gen_add_element(schema, type, "technique", NULL, NULL, 0, -1);
+    gen_add_element(schema, type, "extra", NULL, NULL, 0, -1);
+    type = gen_add_complex(schema, "technique_common_bind_material");
+    gen_add_element(schema, type, "instance_material", NULL, "instance_material_geometry", 1, -1);
+
+    // blinn
+    type = gen_add_complex(schema, "blinn");
+    gen_add_element(schema, type, "emission", NULL, "color_or_texture", 0, 1);
+    gen_add_element(schema, type, "ambient", NULL, "color_or_texture", 0, 1);
+    gen_add_element(schema, type, "diffuse", NULL, "color_or_texture", 0, 1);
+    gen_add_element(schema, type, "specular", NULL, "color_or_texture", 0, 1);
+    gen_add_element(schema, type, "shininess", NULL, "float_or_param", 0, 1);
+    gen_add_element(schema, type, "reflective", NULL, "color_or_texture", 0, 1);
+    gen_add_element(schema, type, "reflectivity", NULL, "float_or_param", 0, 1);
+    gen_add_element(schema, type, "transparent", NULL, "color_or_texture", 0, 1);
+    gen_add_element(schema, type, "transparency", NULL, "float_or_param", 0, 1);
+    gen_add_element(schema, type, "index_of_refraction", NULL, "float_or_param", 0, 1);
+
+    // color_or_texture
+    type = gen_add_complex(schema, "color_or_texture");
+    gen_add_attr(schema, type, "opaque", NULL, gen_DATA_STRING);
+    gen_add_element(schema, type, "color", NULL, "float4", 0, 1);
+    gen_add_element(schema, type, "param", NULL, "param_ref", 0, 1);
+    gen_add_element(schema, type, "texture", NULL, "texture_fx", 0, 1);
+
+    // constant
+    type = gen_add_complex(schema, "constant");
+    gen_add_element(schema, type, "emission", NULL, "color_or_texture", 0, 1);
+    gen_add_element(schema, type, "reflective", NULL, "color_or_texture", 0, 1);
+    gen_add_element(schema, type, "reflectivity", NULL, "float_or_param", 0, 1);
+    gen_add_element(schema, type, "transparent", NULL, "color_or_texture", 0, 1);
+    gen_add_element(schema, type, "transparency", NULL, "float_or_param", 0, 1);
+    gen_add_element(schema, type, "index_of_refraction", NULL, "float_or_param", 0, 1);
+
+    // effect
+    type = gen_add_complex(schema, "effect");
+    gen_add_attr(schema, type, "id", NULL, gen_DATA_STRING);
+    gen_add_attr(schema, type, "name", NULL, gen_DATA_STRING);
+    gen_add_element(schema, type, "asset", NULL, NULL, 0, 1);
+    gen_add_element(schema, type, "annotate", NULL, NULL, 0, -1);
+    gen_add_element(schema, type, "newparam", NULL, NULL, 0, -1);
+    gen_add_element(schema, type, "profile_COMMON", NULL, NULL, 0, 1);
+    gen_add_element(schema, type, "extra", NULL, NULL, 0, -1);
+
+    // fx_sampler_common
+    type = gen_add_complex(schema, "fx_sampler_common");
+    gen_add_element(schema, type, "instance_image", NULL, NULL, 0, 1);
+    gen_add_element(schema, type, "wrap_s", NULL, "string", 0, 1);
+    gen_add_element(schema, type, "wrap_t", NULL, "string", 0, 1);
+    gen_add_element(schema, type, "wrap_p", NULL, "string", 0, 1);
+    gen_add_element(schema, type, "minfilter", NULL, "string", 0, 1);
+    gen_add_element(schema, type, "magfilter", NULL, "string", 0, 1);
+    gen_add_element(schema, type, "mipfilter", NULL, "string", 0, 1);
+    gen_add_element(schema, type, "border_color", NULL, "float4", 0, 1);
+    gen_add_element(schema, type, "mip_max_level", NULL, "uint", 0, 1);
+    gen_add_element(schema, type, "mip_min_level", NULL, "uint", 0, 1);
+    gen_add_element(schema, type, "mip_bias", NULL, "float", 0, 1);
+    gen_add_element(schema, type, "max_anisotropy", NULL, "uint", 0, 1);
+    gen_add_element(schema, type, "extra", NULL, NULL, 0, -1);
+
+    // image
+    type = gen_add_complex(schema, "image");
+    gen_add_attr(schema, type, "id", NULL, gen_DATA_STRING);
+    gen_add_attr(schema, type, "sid", NULL, gen_DATA_STRING);
+    gen_add_attr(schema, type, "name", NULL, gen_DATA_STRING);
+    gen_add_element(schema, type, "asset", NULL, NULL, 0, 1);
+    gen_add_element(schema, type, "renderable", NULL, NULL, 0, 1);
+    gen_add_element(schema, type, "init_from", NULL, "image_init_from", 0, 1);
+    gen_add_element(schema, type, "create_2d", NULL, NULL, 0, 1);
+    gen_add_element(schema, type, "create_3d", NULL, NULL, 0, 1);
+    gen_add_element(schema, type, "create_cube", NULL, NULL, 0, 1);
+    gen_add_element(schema, type, "extra", NULL, NULL, 0, -1);
+    type = gen_add_complex(schema, "image_renderable");
+    gen_add_attr(schema, type, "share", NULL, gen_DATA_BOOL);
+    type = gen_add_complex(schema, "image_init_from");
+    gen_add_attr(schema, type, "mips_gen_erate", NULL, gen_DATA_BOOL);
+    gen_add_element(schema, type, "ref",  NULL,"string", 0, 1);
+    gen_add_element(schema, type, "hex",  NULL,"image_hex", 0, 1);
+    gen_set_data(schema, type, gen_DATA_STRING, 0, 1); // for fbxdae compatibility
+    type = gen_add_complex(schema, "image_hex");
+    gen_add_attr(schema, type, "format", NULL, gen_DATA_STRING);
+    gen_set_data(schema, type, gen_DATA_STRING, 0, 1);
+
+    // instance_effect
+    type = gen_add_complex(schema, "instance_effect");
+    gen_add_attr(schema, type, "sid", NULL, gen_DATA_STRING);
+    gen_add_attr(schema, type, "name", NULL, gen_DATA_STRING);
+    gen_add_attr(schema, type, "url", NULL, gen_DATA_STRING);
+    gen_add_element(schema, type, "technique_hint", NULL, NULL, 0, -1);
+    gen_add_element(schema, type, "setparam", NULL, NULL, 0, -1);
+    gen_add_element(schema, type, "extra", NULL, NULL, 0, -1);
+
+    // instance_material_geometry
+    type = gen_add_complex(schema, "instance_material_geometry");
+    gen_add_attr(schema, type, "sid", NULL, gen_DATA_STRING);
+    gen_add_attr(schema, type, "name", NULL, gen_DATA_STRING);
+    gen_add_attr(schema, type, "target", NULL, gen_DATA_STRING);
+    gen_add_attr(schema, type, "symbol", NULL, gen_DATA_STRING);
+    gen_add_element(schema, type, "bind", NULL, "bind_fx", 0, -1);
+    gen_add_element(schema, type, "bind_vertex_input", NULL, NULL, 0, -1);
+    gen_add_element(schema, type, "extra", NULL, NULL, 0, -1);
+
+    // lambert
+    type = gen_add_complex(schema, "lambert");
+    gen_add_element(schema, type, "emission", NULL, "color_or_texture", 0, 1);
+    gen_add_element(schema, type, "ambient", NULL, "color_or_texture", 0, 1);
+    gen_add_element(schema, type, "diffuse", NULL, "color_or_texture", 0, 1);
+    gen_add_element(schema, type, "reflective", NULL, "color_or_texture", 0, 1);
+    gen_add_element(schema, type, "reflectivity", NULL, "float_or_param", 0, 1);
+    gen_add_element(schema, type, "transparent", NULL, "color_or_texture", 0, 1);
+    gen_add_element(schema, type, "transparency", NULL, "float_or_param", 0, 1);
+    gen_add_element(schema, type, "index_of_refraction", NULL, "float_or_param", 0, 1);
+
+    // library_effects
+    type = gen_add_complex(schema, "library_effects");
+    gen_add_attr(schema, type, "id", NULL, gen_DATA_STRING);
+    gen_add_attr(schema, type, "name", NULL, gen_DATA_STRING);
+    gen_add_element(schema, type, "asset", NULL, NULL, 0, 1);
+    gen_add_element(schema, type, "effect", NULL, NULL, 1, -1);
+    gen_add_element(schema, type, "extra", NULL, NULL, 0, -1);
+
+    // library_images
+    type = gen_add_complex(schema, "library_images");
+    gen_add_attr(schema, type, "id", NULL, gen_DATA_STRING);
+    gen_add_attr(schema, type, "name", NULL, gen_DATA_STRING);
+    gen_add_element(schema, type, "asset", NULL, NULL, 0, 1);
+    gen_add_element(schema, type, "image", NULL, NULL, 1, -1);
+    gen_add_element(schema, type, "extra", NULL, NULL, 0, -1);
+
+    // library_materials
+    type = gen_add_complex(schema, "library_materials");
+    gen_add_attr(schema, type, "id", NULL, gen_DATA_STRING);
+    gen_add_attr(schema, type, "name", NULL, gen_DATA_STRING);
+    gen_add_element(schema, type, "asset", NULL, NULL, 0, 1);
+    gen_add_element(schema, type, "material", NULL, NULL, 1, -1);
+    gen_add_element(schema, type, "extra", NULL, NULL, 0, -1);
+
+    // material
+    type = gen_add_complex(schema, "material");
+    gen_add_attr(schema, type, "id", NULL, gen_DATA_STRING);
+    gen_add_attr(schema, type, "name", NULL, gen_DATA_STRING);
+    gen_add_element(schema, type, "asset", NULL, NULL, 0, -1);
+    gen_add_element(schema, type, "instance_effect", NULL, NULL, 1, 1);
+    gen_add_element(schema, type, "extra", NULL, NULL, 0, -1);
+
+    // phong
+    type = gen_add_complex(schema, "phong");
+    gen_add_element(schema, type, "emission", NULL, "color_or_texture", 0, 1);
+    gen_add_element(schema, type, "ambient", NULL, "color_or_texture", 0, 1);
+    gen_add_element(schema, type, "diffuse", NULL, "float_or_param", 0, 1);
+    gen_add_element(schema, type, "specular", NULL, "color_or_texture", 0, 1);
+    gen_add_element(schema, type, "shininess", NULL, "color_or_texture", 0, 1);
+    gen_add_element(schema, type, "reflective", NULL, "color_or_texture", 0, 1);
+    gen_add_element(schema, type, "reflectivity", NULL, "float_or_param", 0, 1);
+    gen_add_element(schema, type, "transparent", NULL, "color_or_texture", 0, 1);
+    gen_add_element(schema, type, "transparency", NULL, "float_or_param", 0, 1);
+    gen_add_element(schema, type, "index_of_refraction", NULL, "float_or_param", 0, 1);
+
+    // profile_COMMON
+    type = gen_add_complex(schema, "profile_COMMON");
+    gen_add_element(schema, type, "asset", NULL, NULL, 0, 1);
+    gen_add_element(schema, type, "newparam", NULL, NULL, 0, -1);
+    gen_add_element(schema, type, "technique", NULL, "technique_fx", 1, 1);
+    gen_add_element(schema, type, "extra", NULL, NULL, 0, -1);
+
+    // technique_fx
+    type = gen_add_complex(schema, "technique_fx");
+    gen_add_element(schema, type, "asset", NULL, NULL, 0, 1);
+    gen_add_element(schema, type, "constant", NULL, NULL, 0, 1);
+    gen_add_element(schema, type, "lambert", NULL, NULL, 0, 1);
+    gen_add_element(schema, type, "phong", NULL, NULL, 0, 1);
+    gen_add_element(schema, type, "blinn", NULL, NULL, 0, 1);
+
+    // texture_fx
+    type = gen_add_complex(schema, "texture_fx");
+    gen_add_attr(schema, type, "texture", NULL, gen_DATA_STRING);
+    gen_add_attr(schema, type, "texcoord", NULL, gen_DATA_STRING);
+    gen_add_element(schema, type, "extra", NULL, NULL, 0, -1);
+#endif
 }
 
 //****************************************************************************
-static void destructschema(
+static void destroyschema(
     gen_schema* schema)
 {
 }
@@ -1087,10 +1117,10 @@ int main(int argc, const char* argv[])
             if(data != NULL)
             {
                 gen_schema schema;
-                constructschema(&schema);
+                createschema(&schema);
                 data[size] = '\0';
                 writeoutput(&schema, data, fpo);
-                destructschema(&schema);
+                destroyschema(&schema);
                 free(data);
             }
         }
@@ -1113,7 +1143,7 @@ int main(int argc, const char* argv[])
     }    
     else
     {
-        printf("usage: daegen <template file> <output file>\n");
+        printf("usage: daegen_ <template file> <output file>\n");
     }
 #if !defined(NDEBUG) && defined(_MSC_FULL_VER)
     _CrtCheckMemory();

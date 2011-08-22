@@ -66,9 +66,6 @@ enum dae_typeid_e
     dae_ID_ASSET_COVERAGE,
     dae_ID_ASSET_UNIT,
     dae_ID_GEOGRAPHIC_LOCATION,
-    dae_ID_BLINN,
-    dae_ID_COLOR_OR_TEXTURE,
-    dae_ID_FLOAT_OR_PARAM,
     dae_ID_BOOL_ARRAY,
     dae_ID_CAMERA,
     dae_ID_OPTICS,
@@ -94,31 +91,21 @@ enum dae_typeid_e
     dae_ID_LIBRARY_PHYSICS_SCENES,
     dae_ID_LIBRARY_VISUAL_SCENES,
     dae_ID_SCENE,
-    dae_ID_PARAM_REF,
-    dae_ID_FX_TEXTURE,
-    dae_ID_CONSTANT,
     dae_ID_CONTROLLER,
     dae_ID_SKIN,
     dae_ID_MORPH,
     dae_ID_CONTROL_VERTICES,
     dae_ID_INPUT_UNSHARED,
     dae_ID_DIRECTIONAL,
-    dae_ID_EFFECT,
-    dae_ID_NEWPARAM,
-    dae_ID_PROFILE_COMMON,
     dae_ID_EVALUATE_SCENE,
     dae_ID_RENDER,
     dae_ID_TECHNIQUE,
     dae_ID_FLOAT_ARRAY,
+    dae_ID_FLOAT_OR_PARAM,
     dae_ID_TARGETABLE_FLOAT,
+    dae_ID_PARAM_REF,
     dae_ID_FORMULA,
-    dae_ID_FORMULA_TECHNIQUE_COMMON,
-    dae_ID_FX_SAMPLER_COMMON,
-    dae_ID_INSTANCE_IMAGE,
-    dae_ID_UINT,
-    dae_ID_FX_TECHNIQUE,
-    dae_ID_LAMBERT,
-    dae_ID_PHONG,
+    dae_ID_TECHNIQUE_COMMON_FORMULA,
     dae_ID_GEOGRAPHIC_LOCATION_ALTITUDE,
     dae_ID_GEOMETRY,
     dae_ID_CONVEX_MESH,
@@ -126,23 +113,13 @@ enum dae_typeid_e
     dae_ID_SPLINE,
     dae_ID_BREP,
     dae_ID_IDREF_ARRAY,
-    dae_ID_IMAGE,
-    dae_ID_RENDERABLE,
-    dae_ID_IMAGE_INIT_FROM,
-    dae_ID_CREATE_2D,
-    dae_ID_CREATE_3D,
-    dae_ID_CREATE_CUBE,
-    dae_ID_IMAGE_RENDERABLE,
-    dae_ID_IMAGE_HEX,
     dae_ID_INPUT_SHARED,
     dae_ID_INSTANCE_CAMERA,
     dae_ID_INSTANCE_CONTROLLER,
     dae_ID_SKELETON,
     dae_ID_BIND_MATERIAL,
-    dae_ID_INSTANCE_EFFECT,
-    dae_ID_TECHNIQUE_HINT,
-    dae_ID_SETPARAM,
     dae_ID_INSTANCE_FORMULA,
+    dae_ID_SETPARAM,
     dae_ID_INSTANCE_GEOMETRY,
     dae_ID_INSTANCE_LIGHT,
     dae_ID_INSTANCE_NODE,
@@ -151,10 +128,9 @@ enum dae_typeid_e
     dae_ID_JOINTS,
     dae_ID_LIBRARY_FORMULAS,
     dae_ID_LIGHT,
-    dae_ID_MATERIAL,
     dae_ID_NODE,
     dae_ID_VISUAL_SCENE,
-    dae_ID_LIGHT_TECHNIQUE_COMMON,
+    dae_ID_TECHNIQUE_COMMON_LIGHT,
     dae_ID_POINT,
     dae_ID_SPOT,
     dae_ID_LINES,
@@ -169,7 +145,9 @@ enum dae_typeid_e
     dae_ID_TRISTRIPS,
     dae_ID_TARGETS,
     dae_ID_NAME_ARRAY,
-    dae_ID_OPTICS_TECHNIQUE_COMMON,
+    dae_ID_NEWPARAM,
+    dae_ID_FX_SAMPLER_COMMON,
+    dae_ID_TECHNIQUE_COMMON_OPTICS,
     dae_ID_ORTHOGRAPHIC,
     dae_ID_PERSPECTIVE,
     dae_ID_PH,
@@ -178,8 +156,34 @@ enum dae_typeid_e
     dae_ID_SIDREF_ARRAY,
     dae_ID_VERTEX_WEIGHTS,
     dae_ID_TOKEN_ARRAY,
-    dae_ID_SOURCE_TECHNIQUE_COMMON,
+    dae_ID_TECHNIQUE_COMMON_SOURCE,
     dae_ID_TARGETABLE_FLOAT4,
+    dae_ID_TECHNIQUE_HINT,
+    dae_ID_UINT,
+    dae_ID_TECHNIQUE_COMMON_BIND_MATERIAL,
+    dae_ID_INSTANCE_MATERIAL_GEOMETRY,
+    dae_ID_BLINN,
+    dae_ID_COLOR_OR_TEXTURE,
+    dae_ID_TEXTURE_FX,
+    dae_ID_CONSTANT,
+    dae_ID_EFFECT,
+    dae_ID_PROFILE_COMMON,
+    dae_ID_INSTANCE_IMAGE,
+    dae_ID_IMAGE,
+    dae_ID_RENDERABLE,
+    dae_ID_IMAGE_INIT_FROM,
+    dae_ID_CREATE_2D,
+    dae_ID_CREATE_3D,
+    dae_ID_CREATE_CUBE,
+    dae_ID_IMAGE_RENDERABLE,
+    dae_ID_IMAGE_HEX,
+    dae_ID_INSTANCE_EFFECT,
+    dae_ID_BIND_FX,
+    dae_ID_BIND_VERTEX_INPUT,
+    dae_ID_LAMBERT,
+    dae_ID_MATERIAL,
+    dae_ID_PHONG,
+    dae_ID_TECHNIQUE_FX,
 };
 
 typedef union dae_transformation_element_u dae_transformation_element;
@@ -230,9 +234,6 @@ typedef struct dae_contributor_list_s dae_contributor_list;
 typedef struct dae_asset_coverage_s dae_asset_coverage;
 typedef struct dae_asset_unit_s dae_asset_unit;
 typedef struct dae_geographic_location_s dae_geographic_location;
-typedef struct dae_blinn_s dae_blinn;
-typedef struct dae_color_or_texture_s dae_color_or_texture;
-typedef struct dae_float_or_param_s dae_float_or_param;
 typedef struct dae_bool_array_s dae_bool_array;
 typedef struct dae_camera_s dae_camera;
 typedef struct dae_optics_s dae_optics;
@@ -277,9 +278,6 @@ typedef struct dae_library_physics_scenes_list_s dae_library_physics_scenes_list
 typedef struct dae_library_visual_scenes_s dae_library_visual_scenes;
 typedef struct dae_library_visual_scenes_list_s dae_library_visual_scenes_list;
 typedef struct dae_scene_s dae_scene;
-typedef struct dae_param_ref_s dae_param_ref;
-typedef struct dae_fx_texture_s dae_fx_texture;
-typedef struct dae_constant_s dae_constant;
 typedef struct dae_controller_s dae_controller;
 typedef struct dae_skin_s dae_skin;
 typedef struct dae_morph_s dae_morph;
@@ -287,26 +285,17 @@ typedef struct dae_control_vertices_s dae_control_vertices;
 typedef struct dae_input_unshared_s dae_input_unshared;
 typedef struct dae_input_unshared_list_s dae_input_unshared_list;
 typedef struct dae_directional_s dae_directional;
-typedef struct dae_effect_s dae_effect;
-typedef struct dae_annotate_list_s dae_annotate_list;
-typedef struct dae_newparam_s dae_newparam;
-typedef struct dae_newparam_list_s dae_newparam_list;
-typedef struct dae_profile_COMMON_s dae_profile_COMMON;
 typedef struct dae_evaluate_scene_s dae_evaluate_scene;
 typedef struct dae_render_s dae_render;
 typedef struct dae_render_list_s dae_render_list;
 typedef struct dae_technique_s dae_technique;
 typedef struct dae_technique_list_s dae_technique_list;
 typedef struct dae_float_array_s dae_float_array;
+typedef struct dae_float_or_param_s dae_float_or_param;
 typedef struct dae_targetable_float_s dae_targetable_float;
+typedef struct dae_param_ref_s dae_param_ref;
 typedef struct dae_formula_s dae_formula;
-typedef struct dae_formula_technique_common_s dae_formula_technique_common;
-typedef struct dae_fx_sampler_common_s dae_fx_sampler_common;
-typedef struct dae_instance_image_s dae_instance_image;
-typedef struct dae_uint_s dae_uint;
-typedef struct dae_fx_technique_s dae_fx_technique;
-typedef struct dae_lambert_s dae_lambert;
-typedef struct dae_phong_s dae_phong;
+typedef struct dae_technique_common_formula_s dae_technique_common_formula;
 typedef struct dae_geographic_location_altitude_s dae_geographic_location_altitude;
 typedef struct dae_geometry_s dae_geometry;
 typedef struct dae_convex_mesh_s dae_convex_mesh;
@@ -314,26 +303,15 @@ typedef struct dae_mesh_s dae_mesh;
 typedef struct dae_spline_s dae_spline;
 typedef struct dae_brep_s dae_brep;
 typedef struct dae_IDREF_array_s dae_IDREF_array;
-typedef struct dae_image_s dae_image;
-typedef struct dae_renderable_s dae_renderable;
-typedef struct dae_image_init_from_s dae_image_init_from;
-typedef struct dae_create_2d_s dae_create_2d;
-typedef struct dae_create_3d_s dae_create_3d;
-typedef struct dae_create_cube_s dae_create_cube;
-typedef struct dae_image_renderable_s dae_image_renderable;
-typedef struct dae_image_hex_s dae_image_hex;
 typedef struct dae_input_shared_s dae_input_shared;
 typedef struct dae_instance_camera_s dae_instance_camera;
 typedef struct dae_instance_controller_s dae_instance_controller;
 typedef struct dae_skeleton_s dae_skeleton;
 typedef struct dae_skeleton_list_s dae_skeleton_list;
 typedef struct dae_bind_material_s dae_bind_material;
-typedef struct dae_instance_effect_s dae_instance_effect;
-typedef struct dae_technique_hint_s dae_technique_hint;
-typedef struct dae_technique_hint_list_s dae_technique_hint_list;
+typedef struct dae_instance_formula_s dae_instance_formula;
 typedef struct dae_setparam_s dae_setparam;
 typedef struct dae_setparam_list_s dae_setparam_list;
-typedef struct dae_instance_formula_s dae_instance_formula;
 typedef struct dae_instance_geometry_s dae_instance_geometry;
 typedef struct dae_instance_light_s dae_instance_light;
 typedef struct dae_instance_node_s dae_instance_node;
@@ -343,20 +321,16 @@ typedef struct dae_joints_s dae_joints;
 typedef struct dae_animation_clip_list_s dae_animation_clip_list;
 typedef struct dae_camera_list_s dae_camera_list;
 typedef struct dae_controller_list_s dae_controller_list;
-typedef struct dae_effect_list_s dae_effect_list;
 typedef struct dae_library_formulas_s dae_library_formulas;
 typedef struct dae_formula_list_s dae_formula_list;
 typedef struct dae_geometry_list_s dae_geometry_list;
-typedef struct dae_image_list_s dae_image_list;
 typedef struct dae_light_s dae_light;
 typedef struct dae_light_list_s dae_light_list;
-typedef struct dae_material_s dae_material;
-typedef struct dae_material_list_s dae_material_list;
 typedef struct dae_node_s dae_node;
 typedef struct dae_node_list_s dae_node_list;
 typedef struct dae_visual_scene_s dae_visual_scene;
 typedef struct dae_visual_scene_list_s dae_visual_scene_list;
-typedef struct dae_light_technique_common_s dae_light_technique_common;
+typedef struct dae_technique_common_light_s dae_technique_common_light;
 typedef struct dae_point_s dae_point;
 typedef struct dae_spot_s dae_spot;
 typedef struct dae_lines_s dae_lines;
@@ -365,7 +339,6 @@ typedef struct dae_list_of_uints_s dae_list_of_uints;
 typedef struct dae_linestrips_s dae_linestrips;
 typedef struct dae_list_of_uints_list_s dae_list_of_uints_list;
 typedef struct dae_list_of_ints_s dae_list_of_ints;
-typedef struct dae_asset_list_s dae_asset_list;
 typedef struct dae_vertices_s dae_vertices;
 typedef struct dae_lines_list_s dae_lines_list;
 typedef struct dae_linestrips_list_s dae_linestrips_list;
@@ -381,13 +354,15 @@ typedef struct dae_tristrips_s dae_tristrips;
 typedef struct dae_tristrips_list_s dae_tristrips_list;
 typedef struct dae_targets_s dae_targets;
 typedef struct dae_Name_array_s dae_Name_array;
+typedef struct dae_newparam_s dae_newparam;
+typedef struct dae_fx_sampler_common_s dae_fx_sampler_common;
 typedef struct dae_transformation_element_list_s dae_transformation_element_list;
 typedef struct dae_instance_camera_list_s dae_instance_camera_list;
 typedef struct dae_instance_controller_list_s dae_instance_controller_list;
 typedef struct dae_instance_geometry_list_s dae_instance_geometry_list;
 typedef struct dae_instance_light_list_s dae_instance_light_list;
 typedef struct dae_instance_node_list_s dae_instance_node_list;
-typedef struct dae_optics_technique_common_s dae_optics_technique_common;
+typedef struct dae_technique_common_optics_s dae_technique_common_optics;
 typedef struct dae_orthographic_s dae_orthographic;
 typedef struct dae_perspective_s dae_perspective;
 typedef struct dae_ph_s dae_ph;
@@ -398,9 +373,45 @@ typedef struct dae_instance_kinematics_scene_s dae_instance_kinematics_scene;
 typedef struct dae_SIDREF_array_s dae_SIDREF_array;
 typedef struct dae_vertex_weights_s dae_vertex_weights;
 typedef struct dae_token_array_s dae_token_array;
-typedef struct dae_source_technique_common_s dae_source_technique_common;
+typedef struct dae_technique_common_source_s dae_technique_common_source;
 typedef struct dae_targetable_float4_s dae_targetable_float4;
+typedef struct dae_technique_hint_s dae_technique_hint;
+typedef struct dae_uint_s dae_uint;
 typedef struct dae_evaluate_scene_list_s dae_evaluate_scene_list;
+typedef struct dae_technique_common_bind_material_s dae_technique_common_bind_material;
+typedef struct dae_instance_material_geometry_s dae_instance_material_geometry;
+typedef struct dae_instance_material_geometry_list_s dae_instance_material_geometry_list;
+typedef struct dae_blinn_s dae_blinn;
+typedef struct dae_color_or_texture_s dae_color_or_texture;
+typedef struct dae_texture_fx_s dae_texture_fx;
+typedef struct dae_constant_s dae_constant;
+typedef struct dae_effect_s dae_effect;
+typedef struct dae_annotate_list_s dae_annotate_list;
+typedef struct dae_newparam_list_s dae_newparam_list;
+typedef struct dae_profile_COMMON_s dae_profile_COMMON;
+typedef struct dae_instance_image_s dae_instance_image;
+typedef struct dae_image_s dae_image;
+typedef struct dae_renderable_s dae_renderable;
+typedef struct dae_image_init_from_s dae_image_init_from;
+typedef struct dae_create_2d_s dae_create_2d;
+typedef struct dae_create_3d_s dae_create_3d;
+typedef struct dae_create_cube_s dae_create_cube;
+typedef struct dae_image_renderable_s dae_image_renderable;
+typedef struct dae_image_hex_s dae_image_hex;
+typedef struct dae_instance_effect_s dae_instance_effect;
+typedef struct dae_technique_hint_list_s dae_technique_hint_list;
+typedef struct dae_bind_fx_s dae_bind_fx;
+typedef struct dae_bind_fx_list_s dae_bind_fx_list;
+typedef struct dae_bind_vertex_input_s dae_bind_vertex_input;
+typedef struct dae_bind_vertex_input_list_s dae_bind_vertex_input_list;
+typedef struct dae_lambert_s dae_lambert;
+typedef struct dae_effect_list_s dae_effect_list;
+typedef struct dae_image_list_s dae_image_list;
+typedef struct dae_material_s dae_material;
+typedef struct dae_material_list_s dae_material_list;
+typedef struct dae_asset_list_s dae_asset_list;
+typedef struct dae_phong_s dae_phong;
+typedef struct dae_technique_fx_s dae_technique_fx;
 
 struct dae_listbase_s
 {
@@ -684,37 +695,6 @@ struct dae_asset_unit_s
     float meter;
 };
 
-struct dae_blinn_s
-{
-    dae_typebase daebase;
-    dae_color_or_texture* emission;
-    dae_color_or_texture* ambient;
-    dae_color_or_texture* diffuse;
-    dae_color_or_texture* specular;
-    dae_float_or_param* shininess;
-    dae_color_or_texture* reflective;
-    dae_float_or_param* reflectivity;
-    dae_color_or_texture* transparent;
-    dae_float_or_param* transparency;
-    dae_float_or_param* index_of_refraction;
-};
-
-struct dae_color_or_texture_s
-{
-    dae_typebase daebase;
-    char* opaque;
-    dae_float4* color;
-    dae_param_ref* param;
-    dae_fx_texture* texture;
-};
-
-struct dae_float_or_param_s
-{
-    dae_typebase daebase;
-    dae_targetable_float* float_;
-    dae_param_ref* param;
-};
-
 struct dae_bool_array_s
 {
     dae_typebase daebase;
@@ -908,31 +888,6 @@ struct dae_library_visual_scenes_list_s
     size_t size;
 };
 
-struct dae_param_ref_s
-{
-    dae_typebase daebase;
-    char* ref;
-};
-
-struct dae_fx_texture_s
-{
-    dae_typebase daebase;
-    char* texture;
-    char* texcoord;
-    dae_extra_list extra;
-};
-
-struct dae_constant_s
-{
-    dae_typebase daebase;
-    dae_color_or_texture* emission;
-    dae_color_or_texture* reflective;
-    dae_float_or_param* reflectivity;
-    dae_color_or_texture* transparent;
-    dae_float_or_param* transparency;
-    dae_float_or_param* index_of_refraction;
-};
-
 struct dae_controller_s
 {
     dae_typebase daebase;
@@ -962,34 +917,6 @@ struct dae_directional_s
 {
     dae_typebase daebase;
     dae_targetable_float3 color;
-};
-
-struct dae_annotate_list_s
-{
-    dae_listbase daebase;
-    dae_annotate* values;
-    size_t size;
-};
-
-struct dae_newparam_s
-{
-    dae_typebase daebase;
-    char* sid;
-    dae_annotate* annotate;
-    dae_string* semantic;
-    dae_string* modifier;
-    dae_float* float_;
-    dae_float2* float2;
-    dae_float3* float3;
-    dae_float4* float4;
-    dae_fx_sampler_common* sampler2D;
-};
-
-struct dae_newparam_list_s
-{
-    dae_listbase daebase;
-    dae_newparam* values;
-    size_t size;
 };
 
 struct dae_render_s
@@ -1030,6 +957,13 @@ struct dae_float_array_s
     size_t datasize;
 };
 
+struct dae_float_or_param_s
+{
+    dae_typebase daebase;
+    dae_targetable_float* float_;
+    dae_param_ref* param;
+};
+
 struct dae_targetable_float_s
 {
     dae_typebase daebase;
@@ -1037,77 +971,16 @@ struct dae_targetable_float_s
     float data;
 };
 
-struct dae_formula_technique_common_s
+struct dae_param_ref_s
+{
+    dae_typebase daebase;
+    char* ref;
+};
+
+struct dae_technique_common_formula_s
 {
     dae_typebase daebase;
     char* data;
-};
-
-struct dae_fx_sampler_common_s
-{
-    dae_typebase daebase;
-    dae_instance_image* instance_image;
-    dae_string* wrap_s;
-    dae_string* wrap_t;
-    dae_string* wrap_p;
-    dae_string* minfilter;
-    dae_string* magfilter;
-    dae_string* mipfilter;
-    dae_float4* border_color;
-    dae_uint* mip_max_level;
-    dae_uint* mip_min_level;
-    dae_float* mip_bias;
-    dae_uint* max_anisotropy;
-    dae_extra_list extra;
-};
-
-struct dae_instance_image_s
-{
-    dae_typebase daebase;
-};
-
-struct dae_uint_s
-{
-    dae_typebase daebase;
-    unsigned data;
-};
-
-struct dae_fx_technique_s
-{
-    dae_typebase daebase;
-    dae_asset* asset;
-    dae_constant* constant;
-    dae_lambert* lambert;
-    dae_phong* phong;
-    dae_blinn* blinn;
-};
-
-struct dae_lambert_s
-{
-    dae_typebase daebase;
-    dae_color_or_texture* emission;
-    dae_color_or_texture* ambient;
-    dae_color_or_texture* diffuse;
-    dae_color_or_texture* reflective;
-    dae_float_or_param* reflectivity;
-    dae_color_or_texture* transparent;
-    dae_float_or_param* transparency;
-    dae_float_or_param* index_of_refraction;
-};
-
-struct dae_phong_s
-{
-    dae_typebase daebase;
-    dae_color_or_texture* emission;
-    dae_color_or_texture* ambient;
-    dae_float_or_param* diffuse;
-    dae_color_or_texture* specular;
-    dae_color_or_texture* shininess;
-    dae_color_or_texture* reflective;
-    dae_float_or_param* reflectivity;
-    dae_color_or_texture* transparent;
-    dae_float_or_param* transparency;
-    dae_float_or_param* index_of_refraction;
 };
 
 struct dae_geographic_location_altitude_s
@@ -1150,63 +1023,6 @@ struct dae_IDREF_array_s
     size_t datasize;
 };
 
-struct dae_image_s
-{
-    dae_typebase daebase;
-    char* id;
-    char* sid;
-    char* name;
-    dae_asset* asset;
-    dae_renderable* renderable;
-    dae_image_init_from* init_from;
-    dae_create_2d* create_2d;
-    dae_create_3d* create_3d;
-    dae_create_cube* create_cube;
-    dae_extra_list extra;
-};
-
-struct dae_renderable_s
-{
-    dae_typebase daebase;
-};
-
-struct dae_image_init_from_s
-{
-    dae_typebase daebase;
-    int mips_gen_erate;
-    char* data;
-    dae_string* ref;
-    dae_image_hex* hex;
-};
-
-struct dae_create_2d_s
-{
-    dae_typebase daebase;
-};
-
-struct dae_create_3d_s
-{
-    dae_typebase daebase;
-};
-
-struct dae_create_cube_s
-{
-    dae_typebase daebase;
-};
-
-struct dae_image_renderable_s
-{
-    dae_typebase daebase;
-    int share;
-};
-
-struct dae_image_hex_s
-{
-    dae_typebase daebase;
-    char* format;
-    char* data;
-};
-
 struct dae_input_shared_s
 {
     dae_typebase daebase;
@@ -1238,26 +1054,6 @@ struct dae_skeleton_list_s
     size_t size;
 };
 
-struct dae_bind_material_s
-{
-    dae_typebase daebase;
-};
-
-struct dae_technique_hint_s
-{
-    dae_typebase daebase;
-    char* platform;
-    char* ref;
-    char* profile;
-};
-
-struct dae_technique_hint_list_s
-{
-    dae_listbase daebase;
-    dae_technique_hint* values;
-    size_t size;
-};
-
 struct dae_setparam_s
 {
     dae_typebase daebase;
@@ -1269,16 +1065,6 @@ struct dae_setparam_list_s
     dae_listbase daebase;
     dae_setparam* values;
     size_t size;
-};
-
-struct dae_instance_formula_s
-{
-    dae_typebase daebase;
-    char* sid;
-    char* name;
-    char* url;
-    dae_setparam_list setparam;
-    dae_extra_list extra;
 };
 
 struct dae_instance_geometry_s
@@ -1359,13 +1145,6 @@ struct dae_controller_list_s
     size_t size;
 };
 
-struct dae_effect_list_s
-{
-    dae_listbase daebase;
-    dae_effect* values;
-    size_t size;
-};
-
 struct dae_formula_list_s
 {
     dae_listbase daebase;
@@ -1380,24 +1159,10 @@ struct dae_geometry_list_s
     size_t size;
 };
 
-struct dae_image_list_s
-{
-    dae_listbase daebase;
-    dae_image* values;
-    size_t size;
-};
-
 struct dae_light_list_s
 {
     dae_listbase daebase;
     dae_light* values;
-    size_t size;
-};
-
-struct dae_material_list_s
-{
-    dae_listbase daebase;
-    dae_material* values;
     size_t size;
 };
 
@@ -1415,7 +1180,7 @@ struct dae_visual_scene_list_s
     size_t size;
 };
 
-struct dae_light_technique_common_s
+struct dae_technique_common_light_s
 {
     dae_typebase daebase;
     dae_ambient* ambient;
@@ -1470,13 +1235,6 @@ struct dae_list_of_ints_s
     dae_typebase daebase;
     int* data;
     size_t datasize;
-};
-
-struct dae_asset_list_s
-{
-    dae_listbase daebase;
-    dae_asset* values;
-    size_t size;
 };
 
 struct dae_vertices_s
@@ -1599,6 +1357,38 @@ struct dae_Name_array_s
     size_t datasize;
 };
 
+struct dae_newparam_s
+{
+    dae_typebase daebase;
+    char* sid;
+    dae_annotate* annotate;
+    dae_string* semantic;
+    dae_string* modifier;
+    dae_float* float_;
+    dae_float2* float2;
+    dae_float3* float3;
+    dae_float4* float4;
+    dae_fx_sampler_common* sampler2D;
+};
+
+struct dae_fx_sampler_common_s
+{
+    dae_typebase daebase;
+    dae_instance_image* instance_image;
+    dae_string* wrap_s;
+    dae_string* wrap_t;
+    dae_string* wrap_p;
+    dae_string* minfilter;
+    dae_string* magfilter;
+    dae_string* mipfilter;
+    dae_float4* border_color;
+    dae_uint* mip_max_level;
+    dae_uint* mip_min_level;
+    dae_float* mip_bias;
+    dae_uint* max_anisotropy;
+    dae_extra_list extra;
+};
+
 struct dae_transformation_element_list_s
 {
     dae_listbase daebase;
@@ -1641,7 +1431,7 @@ struct dae_instance_node_list_s
     size_t size;
 };
 
-struct dae_optics_technique_common_s
+struct dae_technique_common_optics_s
 {
     dae_typebase daebase;
     dae_orthographic* orthographic;
@@ -1733,11 +1523,248 @@ struct dae_targetable_float4_s
     float data[4];
 };
 
+struct dae_technique_hint_s
+{
+    dae_typebase daebase;
+    char* platform;
+    char* ref;
+    char* profile;
+};
+
+struct dae_uint_s
+{
+    dae_typebase daebase;
+    unsigned data;
+};
+
 struct dae_evaluate_scene_list_s
 {
     dae_listbase daebase;
     dae_evaluate_scene* values;
     size_t size;
+};
+
+struct dae_instance_material_geometry_list_s
+{
+    dae_listbase daebase;
+    dae_instance_material_geometry* values;
+    size_t size;
+};
+
+struct dae_blinn_s
+{
+    dae_typebase daebase;
+    dae_color_or_texture* emission;
+    dae_color_or_texture* ambient;
+    dae_color_or_texture* diffuse;
+    dae_color_or_texture* specular;
+    dae_float_or_param* shininess;
+    dae_color_or_texture* reflective;
+    dae_float_or_param* reflectivity;
+    dae_color_or_texture* transparent;
+    dae_float_or_param* transparency;
+    dae_float_or_param* index_of_refraction;
+};
+
+struct dae_color_or_texture_s
+{
+    dae_typebase daebase;
+    char* opaque;
+    dae_float4* color;
+    dae_param_ref* param;
+    dae_texture_fx* texture;
+};
+
+struct dae_texture_fx_s
+{
+    dae_typebase daebase;
+    char* texture;
+    char* texcoord;
+    dae_extra_list extra;
+};
+
+struct dae_constant_s
+{
+    dae_typebase daebase;
+    dae_color_or_texture* emission;
+    dae_color_or_texture* reflective;
+    dae_float_or_param* reflectivity;
+    dae_color_or_texture* transparent;
+    dae_float_or_param* transparency;
+    dae_float_or_param* index_of_refraction;
+};
+
+struct dae_annotate_list_s
+{
+    dae_listbase daebase;
+    dae_annotate* values;
+    size_t size;
+};
+
+struct dae_newparam_list_s
+{
+    dae_listbase daebase;
+    dae_newparam* values;
+    size_t size;
+};
+
+struct dae_instance_image_s
+{
+    dae_typebase daebase;
+};
+
+struct dae_image_s
+{
+    dae_typebase daebase;
+    char* id;
+    char* sid;
+    char* name;
+    dae_asset* asset;
+    dae_renderable* renderable;
+    dae_image_init_from* init_from;
+    dae_create_2d* create_2d;
+    dae_create_3d* create_3d;
+    dae_create_cube* create_cube;
+    dae_extra_list extra;
+};
+
+struct dae_renderable_s
+{
+    dae_typebase daebase;
+};
+
+struct dae_image_init_from_s
+{
+    dae_typebase daebase;
+    int mips_gen_erate;
+    char* data;
+    dae_string* ref;
+    dae_image_hex* hex;
+};
+
+struct dae_create_2d_s
+{
+    dae_typebase daebase;
+};
+
+struct dae_create_3d_s
+{
+    dae_typebase daebase;
+};
+
+struct dae_create_cube_s
+{
+    dae_typebase daebase;
+};
+
+struct dae_image_renderable_s
+{
+    dae_typebase daebase;
+    int share;
+};
+
+struct dae_image_hex_s
+{
+    dae_typebase daebase;
+    char* format;
+    char* data;
+};
+
+struct dae_technique_hint_list_s
+{
+    dae_listbase daebase;
+    dae_technique_hint* values;
+    size_t size;
+};
+
+struct dae_bind_fx_s
+{
+    dae_typebase daebase;
+};
+
+struct dae_bind_fx_list_s
+{
+    dae_listbase daebase;
+    dae_bind_fx* values;
+    size_t size;
+};
+
+struct dae_bind_vertex_input_s
+{
+    dae_typebase daebase;
+};
+
+struct dae_bind_vertex_input_list_s
+{
+    dae_listbase daebase;
+    dae_bind_vertex_input* values;
+    size_t size;
+};
+
+struct dae_lambert_s
+{
+    dae_typebase daebase;
+    dae_color_or_texture* emission;
+    dae_color_or_texture* ambient;
+    dae_color_or_texture* diffuse;
+    dae_color_or_texture* reflective;
+    dae_float_or_param* reflectivity;
+    dae_color_or_texture* transparent;
+    dae_float_or_param* transparency;
+    dae_float_or_param* index_of_refraction;
+};
+
+struct dae_effect_list_s
+{
+    dae_listbase daebase;
+    dae_effect* values;
+    size_t size;
+};
+
+struct dae_image_list_s
+{
+    dae_listbase daebase;
+    dae_image* values;
+    size_t size;
+};
+
+struct dae_material_list_s
+{
+    dae_listbase daebase;
+    dae_material* values;
+    size_t size;
+};
+
+struct dae_asset_list_s
+{
+    dae_listbase daebase;
+    dae_asset* values;
+    size_t size;
+};
+
+struct dae_phong_s
+{
+    dae_typebase daebase;
+    dae_color_or_texture* emission;
+    dae_color_or_texture* ambient;
+    dae_float_or_param* diffuse;
+    dae_color_or_texture* specular;
+    dae_color_or_texture* shininess;
+    dae_color_or_texture* reflective;
+    dae_float_or_param* reflectivity;
+    dae_color_or_texture* transparent;
+    dae_float_or_param* transparency;
+    dae_float_or_param* index_of_refraction;
+};
+
+struct dae_technique_fx_s
+{
+    dae_typebase daebase;
+    dae_asset* asset;
+    dae_constant* constant;
+    dae_lambert* lambert;
+    dae_phong* phong;
+    dae_blinn* blinn;
 };
 
 union dae_transformation_element_u
@@ -1808,7 +1835,7 @@ struct dae_source_s
     dae_Name_array* Name_array;
     dae_SIDREF_array* SIDREF_array;
     dae_token_array* token_array;
-    dae_source_technique_common* technique_common;
+    dae_technique_common_source* technique_common;
     dae_technique_list technique;
 };
 
@@ -1854,7 +1881,7 @@ struct dae_geographic_location_s
 struct dae_optics_s
 {
     dae_typebase daebase;
-    dae_optics_technique_common technique_common;
+    dae_technique_common_optics technique_common;
     dae_technique_list technique;
     dae_extra_list extra;
 };
@@ -2033,25 +2060,6 @@ struct dae_control_vertices_s
     dae_extra_list extra;
 };
 
-struct dae_effect_s
-{
-    dae_typebase daebase;
-    dae_asset* asset;
-    dae_annotate_list annotate;
-    dae_newparam_list newparam;
-    dae_profile_COMMON* profile_COMMON;
-    dae_extra_list extra;
-};
-
-struct dae_profile_COMMON_s
-{
-    dae_typebase daebase;
-    dae_asset* asset;
-    dae_newparam_list newparam;
-    dae_fx_technique technique;
-    dae_extra_list extra;
-};
-
 struct dae_evaluate_scene_s
 {
     dae_typebase daebase;
@@ -2071,7 +2079,7 @@ struct dae_formula_s
     char* name;
     char* sid;
     dae_float_or_param target;
-    dae_formula_technique_common technique_common;
+    dae_technique_common_formula technique_common;
     dae_technique_list technique;
 };
 
@@ -2110,13 +2118,12 @@ struct dae_instance_controller_s
     dae_extra_list extra;
 };
 
-struct dae_instance_effect_s
+struct dae_instance_formula_s
 {
     dae_typebase daebase;
     char* sid;
     char* name;
     char* url;
-    dae_technique_hint_list technique_hint;
     dae_setparam_list setparam;
     dae_extra_list extra;
 };
@@ -2137,18 +2144,8 @@ struct dae_light_s
     char* id;
     char* name;
     dae_asset* asset;
-    dae_light_technique_common technique_common;
+    dae_technique_common_light technique_common;
     dae_technique_list technique;
-    dae_extra_list extra;
-};
-
-struct dae_material_s
-{
-    dae_typebase daebase;
-    char* id;
-    char* name;
-    dae_asset_list asset;
-    dae_instance_effect instance_effect;
     dae_extra_list extra;
 };
 
@@ -2216,10 +2213,70 @@ struct dae_polygons_s
     dae_extra_list extra;
 };
 
-struct dae_source_technique_common_s
+struct dae_technique_common_source_s
 {
     dae_typebase daebase;
     dae_accessor accessor;
+};
+
+struct dae_technique_common_bind_material_s
+{
+    dae_typebase daebase;
+    dae_instance_material_geometry_list instance_material;
+};
+
+struct dae_instance_material_geometry_s
+{
+    dae_typebase daebase;
+    char* sid;
+    char* name;
+    char* target;
+    char* symbol;
+    dae_bind_fx_list bind;
+    dae_bind_vertex_input_list bind_vertex_input;
+    dae_extra_list extra;
+};
+
+struct dae_effect_s
+{
+    dae_typebase daebase;
+    char* id;
+    char* name;
+    dae_asset* asset;
+    dae_annotate_list annotate;
+    dae_newparam_list newparam;
+    dae_profile_COMMON* profile_COMMON;
+    dae_extra_list extra;
+};
+
+struct dae_profile_COMMON_s
+{
+    dae_typebase daebase;
+    dae_asset* asset;
+    dae_newparam_list newparam;
+    dae_technique_fx technique;
+    dae_extra_list extra;
+};
+
+struct dae_instance_effect_s
+{
+    dae_typebase daebase;
+    char* sid;
+    char* name;
+    char* url;
+    dae_technique_hint_list technique_hint;
+    dae_setparam_list setparam;
+    dae_extra_list extra;
+};
+
+struct dae_material_s
+{
+    dae_typebase daebase;
+    char* id;
+    char* name;
+    dae_asset_list asset;
+    dae_instance_effect instance_effect;
+    dae_extra_list extra;
 };
 
 struct dae_camera_s
@@ -2230,6 +2287,15 @@ struct dae_camera_s
     dae_asset* asset;
     dae_optics optics;
     dae_imager* imager;
+    dae_extra_list extra;
+};
+
+struct dae_bind_material_s
+{
+    dae_typebase daebase;
+    dae_param_list param;
+    dae_technique_common_bind_material technique_common;
+    dae_technique_list technique;
     dae_extra_list extra;
 };
 
@@ -2330,3 +2396,4 @@ void dae_xml_endelement(
 #endif // __cplusplus
 
 #endif // DAE_DAE_H_
+

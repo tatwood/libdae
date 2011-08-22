@@ -24,4 +24,4 @@ obj/%.o : %.c
 all: $(EXE)
 
 clean:
-	rm -f bin/daegen obj/*
+	rm -rf bin/daegen obj

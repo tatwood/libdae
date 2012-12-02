@@ -1,308 +1,616 @@
-/**
- * @brief     core functions for libdae code generation
- * @author    Thomas Atwood (tatwood.net)
- * @date      2011
- * @copyright unlicense / public domain
- ****************************************************************************/
 #include "gen.h"
 #include <assert.h>
 #include <ctype.h>
-#include <stddef.h>
-#include <stdlib.h>
 #include <string.h>
 
 //****************************************************************************
-static char* gen_dupstr(
-     const char* s)
+static void gen_str_alphanumeric(
+    char* dst,
+    const char* src,
+    size_t n)
 {
-     char* dup = NULL;
-     if(s != NULL)
-     {
-          size_t size = strlen(s) + 1;
-          dup = (char*) malloc(sizeof(*dup) * size);
-          memcpy(dup, s, sizeof(*dup) * size);
-     }
-     return dup;
-}
-
-//****************************************************************************
-gen_typeid gen_add_type(
-    gen_schema* schema,
-    gen_typeclass typeclass,
-    const char* name)
-{
-    size_t id = schema->numtypes;
-    size_t cap = (id + 127) & (~127);
-    size_t ncap = (id + 128) & (~127);
-    gen_type* ptype = schema->types;
-    gen_typeheader* ph;
-    if(ncap > cap)
+    char* end = dst + n - 1;
+    while(dst != end && *src != '\0')
     {
-        ptype = (gen_type*) realloc(ptype, sizeof(*ptype) * ncap);
-        schema->types = ptype;
+        char ch = *src;
+        *dst = (isalnum(ch)) ? ch : '_';
+        ++src;
+        ++dst;
     }
-    ptype += id;
-    memset(ptype, 0, sizeof(*ptype));
-    ph = &ptype->header;
-    ph->typeclass = typeclass;
-    ph->name = gen_dupstr(name);
-
-    ++schema->numtypes;
-    return id;
+    *dst = '\0';
 }
 
 //****************************************************************************
-void gen_add_dependency(
-    gen_schema* schema,
-    gen_typeid type,
-    gen_typeid depends)
+static void gen_str_upper(
+    char* dst,
+    const char* src,
+    size_t n)
 {
-    gen_typeheader* ph = &schema->types[type].header;
-    gen_typeid* pd = ph->dependencies;
-    size_t n = ph->numdependencies;
-    size_t cap = (n + 15) & (~15);
-    size_t ncap = (n + 16) & (~15);
-    if(ncap > cap)
+    char* end = dst + n - 1;
+    while(dst != end && *src != '\0')
     {
-        pd = (gen_typeid*) realloc(pd, sizeof(*pd) * ncap);
-        ph->dependencies = pd;
+        *dst = toupper(*src);
+        ++src;
+        ++dst;
     }
-    pd[n] = depends;
-    ++ph->numdependencies;
+    assert(dst != end);
+    *dst = '\0';
 }
 
 //****************************************************************************
-gen_typeid gen_add_choice(
-    gen_schema* schema,
-    const char* name,
-    const char** types,
-    size_t numtypes)
+static void gen_cname_id(
+    char* dst,
+    const char* src,
+    size_t n)
 {
-    int id = gen_find_type(schema, name);
-    if(id < 0)
+    if(n > 7)
     {
-        gen_typeid nid = gen_add_type(schema, gen_TYPECLASS_CHOICE, name);
-        gen_choice* pchoice = &schema->types[nid].choice;
-        const char** tname = types;
-        gen_typeid* titr = (gen_typeid*) malloc(sizeof(*types) * numtypes);
-        gen_typeid* tend = titr + numtypes;
-        pchoice->types = titr;
-        pchoice->numtypes = numtypes;
-        while(titr != tend)
+        const char* colon = strchr(src, ':');
+        if(colon != NULL)
         {
-            size_t t = gen_add_complex(schema, *tname);
-            *titr = t;
-            gen_add_dependency(schema, nid, t);
-            ++titr;
-            ++tname;
+            // strip out namespaces
+            src = colon + 1;
         }
-        id = nid;
+        strcpy(dst, "dae_ID_");
+        gen_str_alphanumeric(dst + 7, src, n - 7);
+        gen_str_upper(dst + 7, dst + 7, n - 7);
     }
-    assert(schema->types[id].header.typeclass == gen_TYPECLASS_CHOICE);
-    assert(schema->types[id].choice.numtypes == numtypes);
-    return id;
+    else if(n > 0)
+    {
+        *dst = '\0';
+    }
 }
 
 //****************************************************************************
-gen_typeid gen_add_complex(
-    gen_schema* schema,
-    const char* name)
+static void gen_cname_attrib(
+    char* dst,
+    const char* src,
+    size_t n)
 {
-    int id = gen_find_type(schema, name);
-    if(id < 0)
+    if(n > 3)
     {
-        gen_typeid nid = gen_add_type(schema, gen_TYPECLASS_COMPLEX, name);
-        gen_complex *pcomplex = &schema->types[nid].complex;
-        char* uprstr = gen_dupstr(name);
-        pcomplex->data = gen_DATA_NONE;
-        pcomplex->enumname = uprstr;
-        while(*uprstr != '\0')
+        strcpy(dst, "at_");
+        gen_str_alphanumeric(dst + 3, src, n - 3);
+    }
+    else if(n > 0)
+    {
+        *dst = '\0';
+    }
+}
+
+//****************************************************************************
+static void gen_cname_elem(
+    char* dst,
+    const char* src,
+    size_t n)
+{
+    if(n > 3)
+    {
+        strcpy(dst, "el_");
+        gen_str_alphanumeric(dst + 3, src, n - 3);
+    }
+    else if(n > 0)
+    {
+        *dst = '\0';
+    }
+}
+
+//****************************************************************************
+static const char* gen_cname_nativeid(
+    xsd_schema* schema,
+    const char* src)
+{
+    const char* nativeid = NULL;
+    while(src != NULL)
+    {
+        xsd_type* t;
+        if(!strcmp(src, xsd_DATA_BOOL))
         {
-            *uprstr = (char) toupper(*uprstr);
-            ++uprstr;
+            nativeid = "dae_NATIVE_BOOL32";
         }
-        id = nid;
-    }
-    assert(schema->types[id].header.typeclass == gen_TYPECLASS_COMPLEX);
-    return id;
-}
-
-//****************************************************************************
-size_t gen_add_list(
-    gen_schema* schema,
-    const char* name,
-    gen_typeid itemtype)
-{
-    int id = gen_find_type(schema, name);
-    if(id < 0)
-    {
-        gen_typeid nid = gen_add_type(schema, gen_TYPECLASS_LIST, name);
-        gen_list* plist = &schema->types[nid].list;
-        plist->itemtype = itemtype;
-        id = nid;
-    }
-    assert(schema->types[id].header.typeclass == gen_TYPECLASS_LIST);
-    assert(schema->types[id].list.itemtype == itemtype);
-    return id;
-}
-
-//****************************************************************************
-int gen_find_list(
-    gen_schema* schema,
-    gen_typeid itemtype)
-{
-    int n = -1;
-    gen_type* itr = schema->types;
-    gen_type* end = itr + schema->numtypes;
-    while(itr != end)
-    {
-        if(itr->header.typeclass == gen_TYPECLASS_LIST)
+        else if(!strcmp(src, xsd_DATA_HEX))
         {
-            if(itr->list.itemtype == itemtype)
-            {
-                n = (int) (itr - schema->types);
-                break;
-            }
+            nativeid = "dae_NATIVE_HEX8";
         }
-        ++itr;
-    }
-    return n;
-}
-
-//****************************************************************************
-int gen_find_type(
-    gen_schema* schema,
-    const char* name)
-{
-    int n = -1;
-    gen_type* itr = schema->types;
-    gen_type* end = itr + schema->numtypes;
-    while(itr != end)
-    {
-        if(!strcmp(itr->header.name, name))
+        else if(!strcmp(src, xsd_DATA_FLOAT))
         {
-            n = (int) (itr - schema->types);
+            nativeid = "dae_NATIVE_FLOAT";
+        }
+        else if(!strcmp(src, xsd_DATA_INT8))
+        {
+            nativeid = "dae_NATIVE_INT8";
+        }
+        else if(!strcmp(src, xsd_DATA_INT16))
+        {
+            nativeid = "dae_NATIVE_INT16";
+        }
+        else if(!strcmp(src, xsd_DATA_STRING))
+        {
+            nativeid = "dae_NATIVE_STRING";
+        }
+        else if(!strcmp(src, xsd_DATA_INT32))
+        {
+            nativeid = "dae_NATIVE_INT32";
+        }
+        else if(!strcmp(src, xsd_DATA_UINT8))
+        {
+            nativeid = "dae_NATIVE_UINT8";
+        }
+        else if(!strcmp(src, xsd_DATA_UINT16))
+        {
+            nativeid = "dae_NATIVE_UINT16";
+        }
+        else if(!strcmp(src, xsd_DATA_UINT32))
+        {
+            nativeid = "dae_NATIVE_UINT32";
+        }
+        if(nativeid != NULL)
+        {
             break;
         }
-        ++itr;
+        t = xsd_find_type(schema, src);
+        src = t->base;
     }
-    return n;
+    return nativeid;
+}
+
+static const char* gen_cname_native(
+    const char* src)
+{
+    const char* cname = NULL;
+    if(!strcmp(src, xsd_DATA_BOOL))
+    {
+        cname = "int";
+    }
+    else if(!strcmp(src, xsd_DATA_HEX))
+    {
+        cname = "unsigned char";
+    }
+    else if(!strcmp(src, xsd_DATA_FLOAT))
+    {
+        cname = "float";
+    }
+    else if(!strcmp(src, xsd_DATA_INT8))
+    {
+        cname = "char";
+    }
+    else if(!strcmp(src, xsd_DATA_INT16))
+    {
+        cname = "short";
+    }
+    else if(!strcmp(src, xsd_DATA_STRING))
+    {
+        cname = "char*";
+    }
+    else if(!strcmp(src, xsd_DATA_INT32))
+    {
+        cname = "int";
+    }
+    else if(!strcmp(src, xsd_DATA_UINT8))
+    {
+        cname = "unsigned char";
+    }
+    else if(!strcmp(src, xsd_DATA_UINT16))
+    {
+        cname = "unsigned short";
+    }
+    else if(!strcmp(src, xsd_DATA_UINT32))
+    {
+        cname = "unsigned int";
+    }
+    return cname;
 }
 
 //****************************************************************************
-size_t gen_add_attr(
-    gen_schema* schema,
-    gen_typeid complex,
-    const char* xml,
-    const char* name,
-    gen_datatype datatype)
+static void gen_cname_type(
+    char* dst,
+    const char* src,
+    size_t n)
 {
-    gen_complex* pcomplex = &schema->types[complex].complex;
-    gen_attr* pattr = pcomplex->attributes;
-    size_t n = pcomplex->numattributes;
-    size_t cap = (n + 15) & (~15);
-    size_t ncap = (n + 16) & (~15);
-    name = (name != NULL) ? name : xml;
-    assert(pcomplex->header.typeclass == gen_TYPECLASS_COMPLEX);
-    if(ncap > cap)
+    const char* native = gen_cname_native(src);
+    if(native != NULL)
     {
-        pattr = (gen_attr*) realloc(pattr, sizeof(*pattr) * ncap);
-        pcomplex->attributes = pattr;
+        strncpy(dst, native, n);
+        dst[n - 1] = '\0';
     }
-    pattr += n;
-    memset(pattr, 0, sizeof(*pattr));
-    pattr->xml = gen_dupstr(xml);
-    pattr->name = (name != xml) ? gen_dupstr(name) : pattr->xml;
-    pattr->datatype = datatype;
-    ++pcomplex->numattributes;
-    return n;
-}
-
-//****************************************************************************
-int gen_add_element(
-    gen_schema* schema,
-    gen_typeid complex,
-    const char* xml,
-    const char* name,
-    const char* type,
-    int minoccurs,
-    int maxoccurs)
-{
-    int elemtype = -1;
-    int n = -1;
-    name = (name != NULL) ? name : xml;
-    type = (type != NULL) ? type : xml;
-    elemtype = gen_find_type(schema, type);
-    if(elemtype < 0)
+    else
     {
-        elemtype = gen_add_complex(schema, type);
-    }
-    if(schema->types[complex].header.typeclass == gen_TYPECLASS_COMPLEX)
-    {
-        gen_complex* pcomplex = &schema->types[complex].complex;
-        gen_element* pelem = pcomplex->elements;
-        size_t cap;
-        size_t ncap;
-        n = pcomplex->numelements;
-        cap = (n + 15) & (~15);
-        ncap = (n + 16) & (~15);
-        if(ncap > cap)
+        if(n > 4)
         {
-            pelem = (gen_element*) realloc(pelem, sizeof(*pelem)*ncap);
-            pcomplex->elements = pelem;
-        }
-        pelem += n;
-        memset(pelem, 0, sizeof(*pelem));
-        ++pcomplex->numelements;
-        pelem->xml = gen_dupstr(xml);
-        pelem->name = (xml != name) ? gen_dupstr(name) : pelem->xml;
-        if(maxoccurs < 0 || (maxoccurs > 1 && minoccurs != maxoccurs))
-        {
-            // list
-            int list = gen_find_list(schema, elemtype);
-            if(list < 0)
+            const char* colon = strchr(src, ':');
+            if(colon != NULL)
             {
-                size_t len = strlen(type);
-                char* listname = (char*) malloc(len+5+1);
-                strcpy(listname, type);
-                strcpy(listname + len, "_list");
-                list = gen_add_list(schema, listname, elemtype);
-                free(listname);
-                pcomplex = NULL; // address may have changed by adding list
+                // strip out namespaces
+                src = colon + 1;
             }
-            gen_add_dependency(schema, complex, list);
-            pelem->type = list;
-            pelem->minoccurs = 1;
-            pelem->maxoccurs = 1; 
+            strcpy(dst, "dae_");
+            gen_str_alphanumeric(dst + 4, src, n - 4);
+        }
+        else if(n > 0)
+        {
+            *dst = '\0';
+        }
+    }
+}
+
+//****************************************************************************
+static void gen_print_structmember(
+    FILE* fp,
+    xsd_type* t,
+    const char* name,
+    int min,
+    int max,
+    int useptr)
+{
+    char tcn[128];
+    gen_cname_type(tcn, t->name, sizeof(tcn) - 1);
+    if(useptr)
+    {
+        strcat(tcn, "*");
+    }
+    if((max == 1 || max == xsd_UNSET))
+    {
+        fprintf(fp,"    %s %s;\n", tcn, name);
+    }
+    else if(max == xsd_UNBOUNDED)
+    {
+        // variable sized list
+        fprintf(fp,"    struct\n");
+        fprintf(fp,"    {\n");
+        fprintf(fp,"        %s* values;\n", tcn);
+        fprintf(fp,"        size_t size;\n");
+        fprintf(fp,"    } %s;\n", name);
+    }
+    else
+    {
+        // fixed size array
+        fprintf(fp,"    %s %s[%i];\n", tcn, name, max);
+    }
+}
+
+//****************************************************************************
+void gen_print_typeids(
+    FILE* fp,
+    xsd_schema* schema)
+{
+    xsd_type** titr = schema->types;
+    xsd_type** tend = titr + schema->numtypes;
+    fprintf(fp,"enum dae_obj_typeid_e\n");
+    fprintf(fp,"{\n");
+    while(titr != tend)
+    {
+        xsd_type* t = *titr;
+        xsd_type** previtr = schema->types;
+        char idcn[128];
+        gen_cname_id(idcn, t->name, sizeof(idcn));
+        // check for duplicates
+        while(previtr != titr)
+        {
+            xsd_type* prev = *previtr;
+            char prevcn[128];
+            gen_cname_id(prevcn, prev->name, sizeof(prevcn));
+            if(strcmp(prevcn, idcn) == 0)
+            {
+                break;
+            }
+            ++previtr;
+        }
+        if(previtr == titr)
+        {
+            fprintf(fp,"    %s,\n", idcn);
+        }
+        ++titr;
+    }
+    fprintf(fp,"    dae_ID_INVALID = -1\n");
+    fprintf(fp,"};\n");
+}
+
+//****************************************************************************
+void gen_print_typedefs(
+    FILE* fp,
+    xsd_schema* schema)
+{
+    xsd_type** titr = schema->types;
+    xsd_type** tend = titr + schema->numtypes;
+    while(titr != tend)
+    {
+        xsd_type* t = *titr;
+        if(gen_cname_native(t->name) == NULL)
+        {
+            // only generate typedefs for non-native types
+            char tcn[128];
+            gen_cname_type(tcn, t->name, sizeof(tcn));
+            if(t->baserelation == xsd_BASE_RENAME)
+            {
+                char basecn[128];
+                gen_cname_type(basecn, t->base, sizeof(basecn));
+                fprintf(fp, "typedef %s %s;\n", basecn, tcn);
+            }
+            else if(t->hascomplex)
+            {
+                // if the type has complex content, generate a struct for it
+                if(t->complex.numattribs > 0 || !t->anycontent)
+                {
+                    fprintf(fp,"typedef struct %s_s %s;\n", tcn, tcn);
+                }
+                else
+                {
+                    // if any child content is allowed, and there are no
+                    // attribs, then there is nothing to define in a struct
+                    // define as void*
+                    fprintf(fp,"typedef void* %s;\n", tcn);
+                }
+            }
+            else if(t->hassimple)
+            {
+                // if the type is simple, generate a primitive typedef for it
+                char cdata[128];
+                int max;
+                gen_cname_type(cdata, t->simple.itemtype, sizeof(cdata));
+                max=(t->simple.maxoccurs!=xsd_UNSET) ? t->simple.maxoccurs:1;
+                assert(!t->anycontent);
+                if(max == 1)
+                {
+                    // single component
+                    fprintf(fp,"typedef %s %s;\n", cdata, tcn);
+                }
+                else if(max == xsd_UNBOUNDED)
+                {
+                    // list, need a struct
+                    fprintf(fp,"typedef struct %s_s %s;\n", tcn, tcn);
+                }
+                else
+                {
+                    // array
+                    fprintf(fp,"typedef %s %s[%i];\n", cdata, tcn, max);
+                }
+            }
+            else
+            {
+                // if the type has no content, define as void*
+                fprintf(fp,"typedef void* %s;\n", tcn);
+            }
+        }
+        ++titr;
+    }
+}
+
+//****************************************************************************
+static int gen_is_struct(
+    xsd_type* t)
+{
+    int isstruct = 0;
+    if(t->hascomplex)
+    {
+        isstruct = t->complex.numattribs > 0 || t->complex.numelements > 0;
+    }
+    else if(t->hassimple)
+    {
+        isstruct = t->simple.maxoccurs == xsd_UNBOUNDED;
+    }
+    return isstruct;
+}
+
+//****************************************************************************
+void gen_print_structs(
+    FILE* fp,
+    xsd_schema* schema)
+{
+    xsd_type** titr = schema->types;
+    xsd_type** tend = titr + schema->numtypes;
+    while(titr != tend)
+    {
+        xsd_type* t = *titr;
+        int needstruct = 0;
+        if(t->baserelation == xsd_BASE_RENAME)
+        {
+            // special case, renames get typedefed as base type
+            needstruct = 0;
         }
         else
         {
-            if(minoccurs != 0)
-            {
-                gen_add_dependency(schema, complex, elemtype);
-            }
-            pelem->type = elemtype;
-            pelem->minoccurs = minoccurs;
-            pelem->maxoccurs = maxoccurs;
+            needstruct = gen_is_struct(t);
         }
+        if(needstruct)
+        {
+            xsd_attrib** atitr = t->complex.attribs;
+            xsd_attrib** atend = atitr + t->complex.numattribs;
+            xsd_element** elitr = t->complex.elements;
+            xsd_element** elend = elitr + t->complex.numelements;
+            char tcn[128];
+            assert(!t->isbuiltin);
+            gen_cname_type(tcn, t->name, sizeof(tcn));
+            fprintf(fp,"struct %s_s\n", tcn);
+            fprintf(fp,"{\n");
+            while(atitr != atend)
+            {
+                xsd_attrib* at = *atitr;
+                xsd_type* tat = xsd_find_type(schema,at->type);
+                const char* item = tat->simple.itemtype;
+                int min = (at->required) ? 1 : 0;
+                int max = 1;
+                char atcn[128];
+                gen_cname_attrib(atcn, at->name, sizeof(atcn));
+                gen_print_structmember(fp, tat, atcn, min, max, 1);
+                if (!tat->hassimple || gen_cname_nativeid(schema,item)==NULL)
+                {
+                    fprintf(fp,"#error unrecogonized attribute type\n");
+                }
+                ++atitr;
+            }
+            while(elitr != elend)
+            {
+                xsd_element* el = *elitr;
+                if(el->type != NULL)
+                {
+                    xsd_element** inrelitr = t->complex.elements;
+                    int isduplicate = 0;
+                    // make sure there are no other elements with the same name
+                    // only export duplicated elements once to the struct def
+                    while(inrelitr != elitr)
+                    {
+                        xsd_element* inrel = *inrelitr;
+                        if(!strcmp(el->name,inrel->name))
+                        {
+                            isduplicate = 1;
+                            break;
+                        }
+                        ++inrelitr;
+                    }
+                    if(!isduplicate)
+                    {
+                        xsd_type* tel = xsd_find_type(schema,el->type);
+                        int min = el->minoccurs;
+                        int max = el->maxoccurs;
+                        char elcn[128];
+                        gen_cname_elem(elcn, el->name, sizeof(elcn));
+                        gen_print_structmember(fp, tel, elcn, min, max, 1);
+                    }
+                }
+                ++elitr;
+            }
+            if(t->hassimple)
+            {
+                xsd_type* titem = xsd_find_type(schema, t->simple.itemtype);
+                int min = t->simple.minoccurs;
+                int max = t->simple.maxoccurs;
+                gen_print_structmember(fp, titem, "data", min, max, 0);
+            }
+            fprintf(fp,"};\n");
+            fprintf(fp,"\n");
+        }
+        ++titr;
     }
-    return n;
 }
 
 //****************************************************************************
-void gen_set_data(
-    gen_schema* schema,
-    gen_typeid complex,
-    gen_datatype datatype,
-    int minoccurs,
-    int maxoccurs)
+void gen_print_schema(
+    FILE* fp,
+    xsd_schema* schema)
 {
-    gen_complex* pcomplex = &schema->types[complex].complex;
-    assert(pcomplex->header.typeclass == gen_TYPECLASS_COMPLEX);
-    if(pcomplex->header.typeclass == gen_TYPECLASS_COMPLEX)
+    xsd_type** titr;
+    xsd_type** tend;
+    fprintf(fp,"static void dae_build_schema(\n");
+    fprintf(fp,"    dae_obj_typedef** types_out,\n");
+    fprintf(fp,"    unsigned* numtypes_out)\n");
+    fprintf(fp,"{\n");
+    fprintf(fp,"    static dae_obj_typedef s_types[%i];\n",
+        (int) schema->numtypes);
+    fprintf(fp,"    dae_obj_typedef* t = s_types;\n");
+    titr = schema->types;
+    tend = titr + schema->numtypes;
+    while(titr != tend)
     {
-        pcomplex->data = datatype;
-        pcomplex->mindata = minoccurs;
-        pcomplex->maxdata = maxoccurs;
+        xsd_type* t = *titr;
+        char idcn[128];
+        char tcn[128];
+        gen_cname_id(idcn, t->name, sizeof(idcn));
+        gen_cname_type(tcn, t->name, sizeof(tcn));
+        fprintf(fp,"    t->name = \"%s\";\n", t->name);
+        fprintf(fp,"    t->size = sizeof(%s);\n", tcn);
+        fprintf(fp,"    t->flags= 0");
+        if(t->anycontent)
+        {
+            fprintf(fp," | dae_XSD_ANY");
+        }
+        fprintf(fp,";\n");
+        fprintf(fp,"    t->objtypeid = %s;\n", idcn);
+        if(t->hassimple)
+        {
+            const char* dtcid;
+            int min;
+            int max;
+            // exported data type should always be a native
+            dtcid = gen_cname_nativeid(schema, t->simple.itemtype);
+            min = (t->simple.minoccurs!=xsd_UNSET) ? t->simple.minoccurs : 1;
+            max = (t->simple.maxoccurs!=xsd_UNSET) ? t->simple.maxoccurs : 1;
+            if(gen_is_struct(t))
+            {
+                fprintf(fp,"    t->dataoffset=offsetof(%s,data);\n",tcn);
+            }
+            else
+            {
+                fprintf(fp,"    t->dataoffset=0;\n");
+            }
+            fprintf(fp,"    t->datatypeid=%s;\n", dtcid);
+            fprintf(fp,"    t->datamin=%i;\n", min);
+            fprintf(fp,"    t->datamax=%i;\n", max);
+        }
+        else
+        {
+            fprintf(fp,"    t->datatypeid=dae_ID_INVALID;\n");
+        }
+        if(t->hascomplex && t->complex.numattribs > 0)
+        {
+            xsd_attrib** atitr = t->complex.attribs;
+            xsd_attrib** atend = atitr + t->complex.numattribs;
+            int numats = t->complex.numattribs;
+            fprintf(fp,"    {\n");
+            fprintf(fp,"        static dae_obj_memberdef attribs[%i];\n", numats);
+            fprintf(fp,"        dae_obj_memberdef* at = attribs;\n");
+            while(atitr != atend)
+            {
+                xsd_attrib* at = *atitr;
+                const char* deflt = at->deflt;
+                char atcn[128];
+                char attcid[128];
+                int req;
+                gen_cname_attrib(atcn, at->name, sizeof(atcn));
+                gen_cname_id(attcid, at->type, sizeof(attcid));
+                req = (at->required!=xsd_UNSET) ? at->required : 0;
+                fprintf(fp,"        at->name=\"%s\";\n", at->name);
+                fprintf(fp,"        at->offset=offsetof(%s,%s);\n",tcn,atcn);
+                fprintf(fp,"        at->objtypeid=%s;\n", attcid);
+                fprintf(fp,"        at->min=%i;\n", req);
+                fprintf(fp,"        at->max=1;\n");
+                if(deflt != NULL)
+                {
+                    fprintf(fp,"        at->deflt=\"%s\";\n",deflt);
+                }
+                fprintf(fp,"        ++at;\n");
+                ++atitr;
+            }
+            fprintf(fp,"        t->attribs = attribs;\n");
+            fprintf(fp,"        t->numattribs = %i;\n", numats);
+            fprintf(fp,"    }\n");
+        }
+        if(t->hascomplex && t->complex.numelements > 0)
+        {
+            xsd_element** elitr = t->complex.elements;
+            xsd_element** elend = elitr + t->complex.numelements;
+            int numels = t->complex.numelements;
+            fprintf(fp,"    {\n");
+            fprintf(fp,"        static dae_obj_memberdef elems[%i];\n",numels);
+            fprintf(fp,"        dae_obj_memberdef* el = elems;\n");
+            while(elitr != elend)
+            {
+                xsd_element* el = *elitr;
+                char elcn[128];
+                char eltcid[128];
+                int min;
+                int max;
+                gen_cname_elem(elcn, el->name, sizeof(elcn));
+                gen_cname_id(eltcid, el->type, sizeof(eltcid));
+                min = (el->minoccurs!=xsd_UNSET) ? el->minoccurs : 1;
+                max = (el->maxoccurs!=xsd_UNSET) ? el->maxoccurs : 1;
+                fprintf(fp,"        el->name=\"%s\";\n", el->name);
+                fprintf(fp,"        el->offset=offsetof(%s,%s);\n",tcn,elcn);
+                fprintf(fp,"        el->objtypeid=%s;\n", eltcid);
+                fprintf(fp,"        el->min=%i;\n", min);
+                fprintf(fp,"        el->max=%i;\n", max);
+                fprintf(fp,"        el->seq=%i;\n", el->seq);
+                fprintf(fp,"        ++el;\n");
+                ++elitr;
+            }
+
+            fprintf(fp,"        t->elems = elems;\n");
+            fprintf(fp,"        t->numelems = %i;\n", numels);
+            fprintf(fp,"    }\n");
+        }
+        fprintf(fp,"    ++t;\n");
+        ++titr;
     }
+    fprintf(fp,"    *types_out = s_types;\n");
+    fprintf(fp,"    *numtypes_out = sizeof(s_types)/sizeof(*s_types);\n");
+    fprintf(fp,"}\n");
 }

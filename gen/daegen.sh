@@ -1,3 +1,3 @@
 #!/bin/sh
-bin/daegen template/daetmp.c ../src/dae.c
-bin/daegen template/daetmp.h ../include/dae/dae.h
+bin/daegen collada_schema_1_5.xsd template/dae.c ../src/dae.c
+bin/daegen collada_schema_1_5.xsd template/dae.h ../include/dae.h

@@ -1,15 +1,13 @@
 LIB=lib/libdae.a
 LIBD=lib/libdaed.a
-OBJS=obj/dae.o obj/daeu.o
-OBJSD=obj/dae.d.o obj/daeu.d.o
+OBJS=obj/make.o
+OBJSD=objd/make.o
 INCLUDES=-Iinclude
 CC=gcc
-CCFLAGS=-Wall -O2 -fno-exceptions -DNDEBUG $(INCLUDES)
+CCFLAGS=-Wall -O3 -fno-exceptions -DNDEBUG $(INCLUDES)
 CCFLAGSD=-Wall -O0 -ggdb2 -fno-exceptions -DDEBUG $(INCLUDES)
 AR=ar
 ARFLAGS=rs
-
-vpath %.c src
 
 $(LIB): obj lib $(OBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS)
@@ -20,13 +18,16 @@ $(LIBD): obj lib $(OBJSD)
 obj:
 	mkdir obj
 
+objd:
+	mkdir objd
+
 lib:
 	mkdir lib
 
-obj/%.o : %.c
+obj/make.o : make.c
 	$(CC) $(CCFLAGS) -c $< -o $@
 
-obj/%.d.o : %.c
+objd/make.o : make.c
 	$(CC) $(CCFLAGSD) -c $< -o $@
 
 all: $(LIB) $(LIBD)
